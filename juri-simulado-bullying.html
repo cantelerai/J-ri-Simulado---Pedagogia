@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Júri Simulado — O Caso de Miguel</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;1,8..60,300&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5F0E8;
+    --paper: #EDE5D0;
+    --ink: #1A1410;
+    --brown: #5C3D2E;
+    --red: #9B2335;
+    --gold: #C4973A;
+    --blue: #1B3A5C;
+    --gray: #7A7065;
+    --light: #FAF7F2;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--cream); color: var(--ink); font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; line-height: 1.7; }
+  .header { background: var(--ink); color: var(--cream); text-align: center; padding: 48px 24px 40px; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.02) 10px, rgba(255,255,255,0.02) 20px); }
+  .header-label { font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 6vw, 4rem); font-weight: 900; line-height: 1.1; margin-bottom: 12px; }
+  .header h1 em { color: var(--gold); font-style: italic; }
+  .header-sub { font-size: 1.05rem; color: rgba(245,240,232,0.7); font-style: italic; max-width: 600px; margin: 0 auto; }
+  .divider-ornament { color: var(--gold); font-size: 1.5rem; margin: 20px 0 0; }
+  .nav { background: var(--brown); display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; padding: 8px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
+  .nav button { background: transparent; border: none; color: rgba(245,240,232,0.65); font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; padding: 10px 18px; cursor: pointer; border-radius: 2px; transition: all 0.2s; }
+  .nav button:hover { background: rgba(255,255,255,0.1); color: var(--cream); }
+  .nav button.active { background: var(--gold); color: var(--ink); font-weight: 700; }
+  .container { max-width: 860px; margin: 0 auto; padding: 0 20px; }
+  .section { display: none; padding: 48px 0 64px; animation: fadeIn 0.4s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .section-title { font-family: 'Playfair Display', serif; font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 700; color: var(--brown); margin-bottom: 8px; }
+  .section-title-line { width: 64px; height: 3px; background: var(--gold); margin-bottom: 32px; }
+  .card { background: var(--light); border: 1px solid rgba(92,61,46,0.15); border-left: 4px solid var(--gold); padding: 28px 32px; margin-bottom: 24px; box-shadow: 2px 2px 0 rgba(92,61,46,0.08); }
+  .card.red { border-left-color: var(--red); }
+  .card.blue { border-left-color: var(--blue); }
+  .card.green { border-left-color: #2E6B3E; }
+  .card-label { font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--gray); margin-bottom: 6px; }
+  .card h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--brown); margin-bottom: 12px; }
+  .card p { color: #3A2E26; margin-bottom: 10px; }
+  .card p:last-child { margin-bottom: 0; }
+  .quote-block { background: var(--paper); border-left: 4px solid var(--gold); padding: 20px 24px; margin: 20px 0; font-style: italic; color: var(--brown); font-size: 1.05rem; }
+  .quote-block cite { display: block; font-style: normal; font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 2px; color: var(--gray); margin-top: 8px; }
+  .witness-card { background: var(--light); border: 1px solid rgba(92,61,46,0.15); margin-bottom: 20px; overflow: hidden; }
+  .witness-header { display: flex; align-items: center; gap: 16px; padding: 20px 24px; cursor: pointer; transition: background 0.2s; }
+  .witness-header:hover { background: var(--paper); }
+  .witness-avatar { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; border: 2px solid var(--gold); }
+  .witness-info h4 { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--brown); }
+  .witness-info span { font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 2px; color: var(--gray); text-transform: uppercase; }
+  .witness-side { margin-left: auto; font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 2px; padding: 4px 10px; border-radius: 2px; text-transform: uppercase; }
+  .witness-side.acusacao { background: rgba(155,35,53,0.12); color: var(--red); border: 1px solid var(--red); }
+  .witness-side.defesa { background: rgba(27,58,92,0.12); color: var(--blue); border: 1px solid var(--blue); }
+  .witness-toggle { font-size: 1.2rem; color: var(--gold); margin-left: 8px; transition: transform 0.3s; }
+  .witness-body { display: none; padding: 0 24px 24px; border-top: 1px solid rgba(92,61,46,0.1); }
+  .witness-body.open { display: block; }
+  .witness-card.open .witness-toggle { transform: rotate(180deg); }
+  .qa-item { margin: 16px 0; }
+  .qa-q { font-family: 'Courier Prime', monospace; font-size: 12px; letter-spacing: 1px; color: var(--gray); text-transform: uppercase; margin-bottom: 4px; }
+  .qa-a { color: #3A2E26; padding-left: 16px; border-left: 2px solid var(--gold); }
+  .charges-table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 0.9rem; }
+  .charges-table th { background: var(--brown); color: var(--cream); padding: 12px 16px; text-align: left; font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; }
+  .charges-table td { padding: 12px 16px; border-bottom: 1px solid rgba(92,61,46,0.12); vertical-align: top; }
+  .charges-table tr:nth-child(even) td { background: var(--paper); }
+  .action-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 24px; }
+  .action-item { background: var(--light); border: 1px solid rgba(92,61,46,0.12); padding: 24px; border-top: 3px solid var(--gold); }
+  .action-num { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: rgba(196,151,58,0.25); line-height: 1; margin-bottom: 8px; }
+  .action-item h4 { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--brown); margin-bottom: 8px; }
+  .action-item p { font-size: 0.9rem; color: var(--gray); }
+  footer { background: var(--ink); color: rgba(245,240,232,0.5); text-align: center; padding: 32px; font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 2px; }
+  hr.ornament { border: none; text-align: center; margin: 28px 0; color: var(--gold); font-size: 1.1rem; }
+  hr.ornament::before { content: '⚖ · · · ⚖'; }
+  strong { color: var(--brown); }
+  @media (max-width: 600px) {
+    .nav button { font-size: 10px; padding: 8px 10px; letter-spacing: 1px; }
+    .card { padding: 20px; }
+    .charges-table { font-size: 0.8rem; }
+    .charges-table th, .charges-table td { padding: 8px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <p class="header-label">Júri Simulado — Direitos Educacionais</p>
+  <h1>O Caso de <em>Miguel</em></h1>
+  <p class="header-sub">Bullying, exclusão digital e a responsabilidade da escola diante da desigualdade</p>
+  <p class="divider-ornament">⚖</p>
+</div>
+
+<nav class="nav">
+  <button class="active" onclick="show('caso', this)">O Caso</button>
+  <button onclick="show('acusacao', this)">Acusação</button>
+  <button onclick="show('defesa', this)">Defesa</button>
+  <button onclick="show('charges', this)">Imputações</button>
+  <button onclick="show('professores', this)">Papel dos Professores</button>
+  <button onclick="show('veredicto', this)">Veredicto Modelo</button>
+</nav>
+
+<!-- O CASO -->
+<section id="caso" class="section active">
+<div class="container">
+  <p class="section-title">O Caso</p>
+  <div class="section-title-line"></div>
+
+  <div class="card">
+    <p class="card-label">Processo nº 2024/EDU-0317</p>
+    <h3>Resumo dos Fatos</h3>
+    <p>Miguel Santos, 13 anos, aluno do 8º ano da <strong>Escola Estadual Professor Raimundo Costa</strong>, mora no bairro Jardim Novo Horizonte, periferia da cidade. Filho de dona Maria, empregada doméstica, e de seu Carlos, carregador de feira, Miguel é o mais velho de três irmãos. Em casa, não há conexão à internet. O único aparelho da família é um celular pré-pago de dona Maria, usado exclusivamente para trabalho.</p>
+    <p>Desde o início do ano letivo de 2024, Miguel tem sido <strong>sistematicamente excluído e ridicularizado</strong> pelos colegas da turma, especialmente por não conseguir participar de grupos de WhatsApp, jogos online, memes e "desafios virais" que dominam as conversas e as relações sociais da turma.</p>
+    <p>A situação escalou quando a professora Renata passou a exigir <strong>pesquisas extraclasse feitas na internet</strong>, apresentações em PowerPoint e o uso de plataformas digitais como obrigação escolar — sem oferecer alternativas acessíveis. Miguel, incapaz de cumprir as tarefas, começou a tirar notas baixas, e os colegas passaram a chamá-lo de <em>"analfabeto digital"</em>, <em>"pobre sem wifi"</em> e <em>"dinossauro"</em>.</p>
+  </div>
+
+  <div class="card red">
+    <p class="card-label">Histórico de Vida</p>
+    <h3>Quem é Miguel?</h3>
+    <p>Miguel sempre foi um aluno dedicado. No 6º ano, ganhou o concurso de redação da escola com um texto sobre o sonho de ser engenheiro. Gosta de matemática, de ler gibis emprestados da biblioteca e de jogar futebol no campo de terra do bairro.</p>
+    <p>O bairro onde mora fica a 11 km da escola. Ele acorda às 5h30 para pegar dois ônibus. Às vezes, faz o trajeto a pé para economizar a passagem. A biblioteca pública mais próxima fica a 4 km e fecha às 17h — antes de ele sair da escola.</p>
+    <p>Nos últimos meses, <strong>Miguel passou a simular doenças para não ir à escola</strong>, chorou escondido no banheiro por três vezes (testemunhado pela inspetora), parou de levantar a mão em sala e a professora de Ed. Física relatou que ele não se mistura mais com os colegas nos intervalos.</p>
+  </div>
+
+  <div class="card blue">
+    <p class="card-label">O Episódio Central</p>
+    <h3>O Dia da Apresentação — 14 de agosto de 2024</h3>
+    <p>A professora Renata determinou que cada aluno apresentaria um trabalho em PowerPoint sobre sustentabilidade, com imagens da internet. Na data marcada, Miguel apresentou seu trabalho <strong>escrito à mão em cartolina</strong>, com desenhos feitos por ele mesmo. O conteúdo era rico e detalhado.</p>
+    <p>Ao subir à frente da turma, três alunos — Lucas, Isabela e Thiago — começaram a rir abertamente. Lucas gritou: <em>"Olha, ele fez no papel! Que brega!"</em> A professora <strong>não interveio</strong> e apenas disse ao final: <em>"Miguel, para a próxima vez tente fazer no computador."</em> Depois reduziu a nota dele de 10 para 7 por não usar recursos digitais.</p>
+    <p>No dia seguinte, uma foto da cartolina de Miguel foi tirada às escondidas e publicada no grupo de WhatsApp da turma com a legenda: <em>"Tecnologia nível favelado."</em> A publicação teve 47 curtidas entre alunos da escola.</p>
+  </div>
+
+  <div class="quote-block">
+    "Eu ficava pensando: o que eu fiz de errado pra não merecer a internet que todo mundo tem? Fiz o trabalho mais bonito que eu pude. Mas não foi suficiente."
+    <cite>— Depoimento de Miguel Santos ao orientador educacional</cite>
+  </div>
+
+  <div class="card">
+    <p class="card-label">Contexto da Desigualdade Digital</p>
+    <h3>Os Números por Trás do Caso</h3>
+    <p>Segundo dados do IBGE (2023), <strong>mais de 40 milhões de brasileiros</strong> não têm acesso à internet em casa. Nas regiões periféricas das grandes cidades, esse número afeta especialmente crianças e adolescentes em idade escolar.</p>
+    <p>Miguel não está sozinho: na mesma turma, pelo menos outros <strong>4 alunos</strong> têm dificuldades de acesso digital, mas nenhum foi tão explicitamente exposto quanto ele.</p>
+  </div>
+</div>
+</section>
+
+<!-- ACUSAÇÃO -->
+<section id="acusacao" class="section">
+<div class="container">
+  <p class="section-title">Testemunhas da Acusação</p>
+  <div class="section-title-line"></div>
+  <p style="margin-bottom:28px; color:var(--gray); font-style:italic;">A acusação sustenta que a escola foi <strong>conivente ou diretamente causadora</strong> do bullying sofrido por Miguel, ao ignorar sua vulnerabilidade socioeconômica e ao não tomar medidas protetivas. <em>(Clique em cada testemunha para ver o depoimento.)</em></p>
+
+  <div class="witness-card" id="wac1">
+    <div class="witness-header" onclick="toggleWitness('wac1')">
+      <div class="witness-avatar" style="background:#FEF3F3;">👦</div>
+      <div class="witness-info"><h4>Miguel Santos</h4><span>Vítima · 13 anos · Aluno do 8º ano</span></div>
+      <span class="witness-side acusacao">Acusação</span>
+      <span class="witness-toggle">▾</span>
+    </div>
+    <div class="witness-body">
+      <div class="qa-item">
+        <p class="qa-q">Promotoria: Como você se sentiu quando a professora não interveio?</p>
+        <p class="qa-a">Eu fiquei com o rosto quente, queria sumir. Pensei que ela ia defender o meu trabalho. Mas ela ficou olhando pro quadro. Depois ainda me tirou nota por causa do papel. Parece que ser pobre é uma punição.</p>
+      </div>
+      <div class="qa-item">
+        <p class="qa-q">Promotoria: O que aconteceu depois que a foto foi postada?</p>
+        <p class="qa-a">Os meninos me chamavam de "favelado sem wifi" nos corredores. Uma menina me mandou mensagem pelo celular da irmã dela dizendo que eu "envergonhava a turma". Eu parei de querer vir pra escola.</p>
+      </div>
+      <div class="qa-item">
+        <p class="qa-q">Defesa (repergunta): Você pediu ajuda à professora ou à escola?</p>
+        <p class="qa-a">Falei pra professora Renata que eu não tinha internet em casa, no começo do ano. Ela disse: "vê se usa o celular de alguém." Nunca mais falei nada.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="witness-card" id="wac2">
+    <div class="witness-header" onclick="toggleWitness('wac2')">
+      <div class="witness-avatar" style="background:#FFF8ED;">👩</div>
+      <div class="witness-info"><h4>Maria Santos</h4><span>Mãe de Miguel · Empregada Doméstica</span></div>
+      <span class="witness-side acusacao">Acusação</span>
+      <span class="witness-toggle">▾</span>
+    </div>
+    <div class="witness-body">
+      <div class="qa-item">
+        <p class="qa-q">Promotoria: A senhora foi informada pela escola sobre o que estava acontecendo?</p>
+        <p class="qa-a">Não. Fui eu quem fui na escola, porque percebi que ele tava diferente, não queria comer, ficava fechado no quarto. A diretora disse que era "fase da adolescência". Só depois que insisti muito me falaram do trabalho da cartolina.</p>
+      </div>
+      <div class="qa-item">
+        <p class="qa-q">Promotoria: A escola ofereceu alguma solução para a falta de internet de Miguel?</p>
+        <p class="qa-a">Nunca. Em nenhum momento. Pedi se tinha laboratório de informática aberto no contraturno. Me disseram que estava "com problema técnico" faz meses. Meu filho só não tem internet porque eu não posso pagar. Isso não é culpa dele.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="witness-card" id="wac3">
+    <div class="witness-header" onclick="toggleWitness('wac3')">
+      <div class="witness-avatar" style="background:#F0F4FF;">👩‍💼</div>
+      <div class="witness-info"><h4>Cláudia Ferreira</h4><span>Inspetora Escolar · 11 anos na instituição</span></div>
+      <span class="witness-side acusacao">Acusação</span>
+      <span class="witness-toggle">▾</span>
+    </div>
+    <div class="witness-body">
+      <div class="qa-item">
+        <p class="qa-q">Promotoria: A senhora testemunhou algum episódio envolvendo Miguel?</p>
+        <p class="qa-a">Três vezes encontrei o Miguel chorando no banheiro dos fundos. Da última vez foi em setembro. Perguntei o que houve. Ele disse: "Os meninos falam que eu sou burro porque não tenho celular bom." Registrei nos meus relatórios e entreguei à coordenação.</p>
+      </div>
+      <div class="qa-item">
+        <p class="qa-q">Promotoria: A coordenação tomou alguma providência visível?</p>
+        <p class="qa-a">Não que eu tenha visto. Os alunos que ridicularizaram Miguel continuaram na turma sem nenhuma advertência formal. A professora Renata continuou pedindo trabalhos digitais do mesmo jeito.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="witness-card" id="wac4">
+    <div class="witness-header" onclick="toggleWitness('wac4')">
+      <div class="witness-avatar" style="background:#F5F0FF;">👨‍🎓</div>
+      <div class="witness-info"><h4>Dr. Fernando Matos</h4><span>Especialista em Desigualdade Digital · Perito da Acusação</span></div>
+      <span class="witness-side acusacao">Acusação</span>
+      <span class="witness-toggle">▾</span>
+    </div>
+    <div class="witness-body">
+      <div class="qa-item">
+        <p class="qa-q">Promotoria: O que caracteriza o "bullying por exclusão digital"?</p>
+        <p class="qa-a">Quando alunos são ridicularizados por não terem acesso a tecnologias que seus pares consideram normativas, estamos diante de uma forma contemporânea de bullying que une preconceito de classe com violência social. A escola que ignora esse fenômeno torna-se corresponsável.</p>
+      </div>
+      <div class="qa-item">
+        <p class="qa-q">Promotoria: A professora agiu adequadamente ao reduzir a nota por não usar PowerPoint?</p>
+        <p class="qa-a">Absolutamente não. Critério de avaliação que penaliza o formato digital sem oferecer alternativa equivalente configura discriminação socioeconômica velada. O conteúdo é o objeto de avaliação, não o suporte tecnológico.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- DEFESA -->
+<section id="defesa" class="section">
+<div class="container">
+  <p class="section-title">Testemunhas da Defesa</p>
+  <div class="section-title-line"></div>
+  <p style="margin-bottom:28px; color:var(--gray); font-style:italic;">A defesa sustenta que a professora Renata agiu de boa-fé dentro das diretrizes curriculares vigentes, e que a escola enfrenta limitações estruturais reais. <em>(Clique em cada testemunha para ver o depoimento.)</em></p>
+
+  <div class="witness-card" id="wdf1">
+    <div class="witness-header" onclick="toggleWitness('wdf1')">
+      <div class="witness-avatar" style="background:#F0F9FF;">👩‍🏫</div>
+      <div class="witness-info"><h4>Professora Renata Oliveira</h4><span>Professora de Português · 8 anos de magistério</span></div>
+      <span class="witness-side defesa">Defesa</span>
+      <span class="witness-toggle">▾</span>
+    </div>
+    <div class="witness-body">
+      <div class="qa-item">
+        <p class="qa-q">Defesa: A senhora sabia da situação financeira de Miguel?</p>
+        <p class="qa-a">Tinha uma ideia geral, como tenho de vários alunos. Mas ele nunca me pediu formalmente uma alternativa ao trabalho digital. Tenho 35 alunos na turma. Não tenho como identificar individualmente a condição de cada família sem apoio institucional.</p>
+      </div>
+      <div class="qa-item">
+        <p class="qa-q">Defesa: A senhora incentivou o bullying?</p>
+        <p class="qa-a">Jamais. Quando os alunos riram, eu já estava terminando de escrever no quadro. Não ouvi claramente. Se tivesse ouvido, teria intervindo. Não sou responsável pelos comentários que os alunos fazem entre si fora da sala de aula.</p>
+      </div>
+      <div class="qa-item">
+        <p class="qa-q">Acusação (repergunta): Se não ouviu, por que reduziu a nota justamente pelo formato?</p>
+        <p class="qa-a">Porque o critério estava no plano de aula. É uma competência digital que a BNCC exige que eu desenvolva. Não fiz por maldade — mas reconheço que posso ter errado ao não oferecer alternativa.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="witness-card" id="wdf2">
+    <div class="witness-header" onclick="toggleWitness('wdf2')">
+      <div class="witness-avatar" style="background:#F0FFF4;">👨‍💼</div>
+      <div class="witness-info"><h4>Diretor Antônio Carvalho</h4><span>Diretor da Escola há 4 anos</span></div>
+      <span class="witness-side defesa">Defesa</span>
+      <span class="witness-toggle">▾</span>
+    </div>
+    <div class="witness-body">
+      <div class="qa-item">
+        <p class="qa-q">Defesa: A escola tem condições de oferecer acesso à internet a todos?</p>
+        <p class="qa-a">O laboratório de informática está com equipamentos defasados. Solicitei verba à Secretaria de Educação três vezes em 2024. O orçamento da escola é insuficiente para a realidade que enfrentamos. Não é negligência — é abandono do poder público.</p>
+      </div>
+      <div class="qa-item">
+        <p class="qa-q">Defesa: Quando soube do bullying, o que foi feito?</p>
+        <p class="qa-a">Orientei a coordenadora a acompanhar o caso. Reconheço que o processo foi lento. Mas a escola não tem psicólogo nem assistente social. São recursos que dependem da rede municipal e nunca chegam até nós.</p>
+      </div>
+      <div class="qa-item">
+        <p class="qa-q">Acusação (repergunta): Houve advertência formal aos agressores?</p>
+        <p class="qa-a">Não foi aberto um processo formal. Reconheço que isso foi uma falha nossa. [pausa] Deveríamos ter agido mais rápido.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="witness-card" id="wdf3">
+    <div class="witness-header" onclick="toggleWitness('wdf3')">
+      <div class="witness-avatar" style="background:#FFFBF0;">🧑</div>
+      <div class="witness-info"><h4>Lucas Mendonça</h4><span>Colega de turma · 14 anos · Autor do comentário ofensivo</span></div>
+      <span class="witness-side defesa">Defesa</span>
+      <span class="witness-toggle">▾</span>
+    </div>
+    <div class="witness-body">
+      <div class="qa-item">
+        <p class="qa-q">Defesa: Você tinha intenção de machucar Miguel?</p>
+        <p class="qa-a">Não, juro que não. Foi uma brincadeira. A gente faz isso com todo mundo. Não sabia que ele ia levar tão a sério. Me arrependo do que falei.</p>
+      </div>
+      <div class="qa-item">
+        <p class="qa-q">Acusação (repergunta): Se era brincadeira, por que não apagou a foto quando a Isabela disse que estava errado?</p>
+        <p class="qa-a">Porque... os meninos tavam achando engraçado. Eu sei que foi errado. Mas na hora eu não pensei nisso.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="witness-card" id="wdf4">
+    <div class="witness-header" onclick="toggleWitness('wdf4')">
+      <div class="witness-avatar" style="background:#F5F5FF;">👩‍💻</div>
+      <div class="witness-info"><h4>Profa. Dra. Sônia Leal</h4><span>Especialista em Currículo · Perita da Defesa</span></div>
+      <span class="witness-side defesa">Defesa</span>
+      <span class="witness-toggle">▾</span>
+    </div>
+    <div class="witness-body">
+      <div class="qa-item">
+        <p class="qa-q">Defesa: A exigência de habilidades digitais é legítima no currículo atual?</p>
+        <p class="qa-a">Completamente. A BNCC de 2018 estabelece a competência digital como um dos dez eixos formativos. A professora não agiu fora do currículo. O problema não está no professor individual — está na ausência de políticas públicas que garantam infraestrutura equitativa.</p>
+      </div>
+      <div class="qa-item">
+        <p class="qa-q">Acusação (repergunta): A BNCC também não exige inclusão e equidade?</p>
+        <p class="qa-a">Sim, também exige. E aí há uma tensão real. O professor não pode ser o único responsável por resolver uma contradição que o próprio sistema criou. Concordo que a professora deveria ter oferecido alternativas — mas culpá-la sozinha seria injusto.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- IMPUTAÇÕES -->
+<section id="charges" class="section">
+<div class="container">
+  <p class="section-title">Imputações e Argumentos</p>
+  <div class="section-title-line"></div>
+
+  <div class="card">
+    <p class="card-label">Resumo das imputações</p>
+    <h3>O que está sendo julgado?</h3>
+    <p>Este júri simulado não julga crimes penais — julga <strong>responsabilidades educacionais, éticas e institucionais</strong>. O objetivo é identificar quem falhou, como e o que poderia ter sido feito diferente.</p>
+  </div>
+
+  <table class="charges-table">
+    <thead>
+      <tr>
+        <th>Imputação</th>
+        <th>Acusado</th>
+        <th>Argumento — Acusação</th>
+        <th>Argumento — Defesa</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Omissão diante do bullying em sala</strong></td>
+        <td>Profa. Renata</td>
+        <td>Não interveio quando alunos riram de Miguel.</td>
+        <td>Afirma não ter ouvido claramente. Sem intenção.</td>
+      </tr>
+      <tr>
+        <td><strong>Discriminação socioeconômica na avaliação</strong></td>
+        <td>Profa. Renata</td>
+        <td>Reduziu nota por não usar tecnologia sem oferecer alternativa.</td>
+        <td>Critério estava no plano de aula. Exigência da BNCC.</td>
+      </tr>
+      <tr>
+        <td><strong>Falha institucional no acolhimento</strong></td>
+        <td>Direção / Escola</td>
+        <td>Relatórios da inspetora existiam. Nenhuma medida formal tomada.</td>
+        <td>Escola carece de profissionais por falta de verba pública.</td>
+      </tr>
+      <tr>
+        <td><strong>Bullying e cyberbullying</strong></td>
+        <td>Lucas, Isabela, Thiago</td>
+        <td>Riram publicamente, publicaram foto ofensiva. Dano real e documentado.</td>
+        <td>Adolescentes sem consciência do impacto. Houve arrependimento.</td>
+      </tr>
+      <tr>
+        <td><strong>Negligência do sistema público</strong></td>
+        <td>Secretaria de Educação</td>
+        <td>Lab. de informática defeituoso, sem psicólogo, sem política de inclusão digital.</td>
+        <td>Problema estrutural sistêmico, não de um ator isolado.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="quote-block">
+    "Quando a escola exige o que não provê, ela pune os mais pobres duas vezes: uma pela pobreza, outra pela incapacidade de superá-la sozinhos."
+    <cite>— Argumento central da acusação no plenário</cite>
+  </div>
+
+  <hr class="ornament">
+
+  <div class="card blue">
+    <p class="card-label">Legislação de apoio</p>
+    <h3>Bases Legais Invocadas</h3>
+    <p><strong>Lei nº 13.185/2015 (Lei do Bullying):</strong> Institui o Programa de Combate à Intimidação Sistemática nas escolas. Obriga as instituições a adotarem medidas de prevenção, investigação e resolução de casos.</p>
+    <p><strong>ECA — Art. 53:</strong> A criança e o adolescente têm direito à educação, visando ao pleno desenvolvimento de sua pessoa e qualificação para o trabalho.</p>
+    <p><strong>BNCC (2018) — Competência 5:</strong> Cultura Digital prevê inclusão digital com equidade, não como exclusão de quem não tem acesso.</p>
+    <p><strong>CF/88 — Art. 206:</strong> O ensino será ministrado com base na igualdade de condições para o acesso e permanência na escola.</p>
+  </div>
+</div>
+</section>
+
+<!-- PROFESSORES -->
+<section id="professores" class="section">
+<div class="container">
+  <p class="section-title">O Papel dos Professores</p>
+  <div class="section-title-line"></div>
+  <p style="margin-bottom:32px; color:#3A2E26;">O que os educadores <strong>podem e devem fazer</strong> diante de situações como a de Miguel.</p>
+
+  <div class="card green">
+    <p class="card-label">Primeira resposta</p>
+    <h3>O que fazer quando o bullying acontece na sua frente</h3>
+    <p><strong>1. Interrompa imediatamente</strong> — sem hesitar, sem minimizar. "Isso não é aceitável aqui. Não vamos continuar assim."</p>
+    <p><strong>2. Não exponha a vítima ainda mais</strong> — evite perguntar "o que aconteceu?" na frente de todos. Converse em particular depois.</p>
+    <p><strong>3. Nomeie o comportamento</strong> — diga claramente: "O que você fez foi bullying. Isso machuca pessoas de verdade."</p>
+    <p><strong>4. Registre por escrito</strong> — data, hora, o que foi dito, quem estava presente. Esse registro é fundamental para qualquer medida institucional.</p>
+  </div>
+
+  <div class="action-grid">
+    <div class="action-item">
+      <div class="action-num">01</div>
+      <h4>Mapeie sua turma</h4>
+      <p>No início do ano, faça um levantamento discreto (via coordenação) sobre quais alunos não têm acesso à internet em casa. Isso é diagnóstico pedagógico, não invasão de privacidade.</p>
+    </div>
+    <div class="action-item">
+      <div class="action-num">02</div>
+      <h4>Ofereça alternativas reais</h4>
+      <p>Nunca exija apenas o formato digital sem prever alternativa equivalente. Cartolina, manuscrito, apresentação oral: o conteúdo é o objeto de avaliação, não o suporte.</p>
+    </div>
+    <div class="action-item">
+      <div class="action-num">03</div>
+      <h4>Use a aula para incluir</h4>
+      <p>Trabalhos em grupo com divisão de papéis garantem que quem não tem internet contribua com outras habilidades — pesquisa em livros, escrita, apresentação oral.</p>
+    </div>
+    <div class="action-item">
+      <div class="action-num">04</div>
+      <h4>Acione a rede de apoio</h4>
+      <p>Psicólogo, assistente social, conselho tutelar, orientador educacional. O professor não resolve tudo sozinho — e não deve tentar.</p>
+    </div>
+    <div class="action-item">
+      <div class="action-num">05</div>
+      <h4>Trabalhe o tema com a turma</h4>
+      <p>Use o contexto (sem expor a vítima) para trabalhar empatia e desigualdade. Textos, rodas de conversa, filmes. O bullying revelou um preconceito de classe que precisa ser nomeado.</p>
+    </div>
+    <div class="action-item">
+      <div class="action-num">06</div>
+      <h4>Comunique a família</h4>
+      <p>A família da vítima deve ser comunicada o quanto antes — para ser parceira no processo de proteção e recuperação emocional do filho.</p>
+    </div>
+    <div class="action-item">
+      <div class="action-num">07</div>
+      <h4>Aplique consequências</h4>
+      <p>Advertência formal, reflexão mediada, possibilidade de reparação simbólica. Sem consequências, a mensagem que fica é que o comportamento é tolerável.</p>
+    </div>
+    <div class="action-item">
+      <div class="action-num">08</div>
+      <h4>Cuide do ambiente da turma</h4>
+      <p>Cultive combinados de respeito, trabalhe diversidade regularmente. Bullying cresce em ambientes onde diferença é tratada como inferioridade.</p>
+    </div>
+  </div>
+
+  <div class="quote-block">
+    "O professor não é responsável por resolver a desigualdade social. Mas é responsável por não ampliá-la dentro da sala de aula."
+    <cite>— Argumento síntese da acusação</cite>
+  </div>
+</div>
+</section>
+
+<!-- VEREDICTO -->
+<section id="veredicto" class="section">
+<div class="container">
+  <p class="section-title">Veredicto Modelo</p>
+  <div class="section-title-line"></div>
+
+  <div class="card">
+    <p class="card-label">Orientação para o júri</p>
+    <h3>Como conduzir a deliberação</h3>
+    <p>O júri deve deliberar sobre cada imputação separadamente. Para cada uma, responder: <strong>Houve responsabilidade? De quem? O que deveria ter sido feito?</strong> O objetivo não é punir, mas compreender e propor soluções.</p>
+  </div>
+
+  <div class="card red">
+    <p class="card-label">Veredicto — Imputação 1</p>
+    <h3>Professora Renata: Omissão e discriminação avaliativa</h3>
+    <p><strong>Decisão:</strong> Responsabilidade parcial reconhecida.</p>
+    <p>A professora falhou ao não criar alternativas de avaliação para alunos sem acesso digital — mesmo após ser informada da situação de Miguel. A omissão durante a apresentação, ainda que não intencional, configurou ausência de cuidado com a vítima. A redução de nota por formato, sem alternativa prévia, foi pedagogicamente inadequada e socialmente injusta.</p>
+    <p><strong>Medida proposta:</strong> Revisão da nota, orientação pedagógica obrigatória, comprometimento com planos de aula inclusivos.</p>
+  </div>
+
+  <div class="card red">
+    <p class="card-label">Veredicto — Imputação 2</p>
+    <h3>Escola e Direção: Falha institucional</h3>
+    <p><strong>Decisão:</strong> Responsabilidade institucional reconhecida.</p>
+    <p>A existência de relatórios da inspetora sem resposta formal configura negligência institucional. Independentemente da falta de recursos, a escola tem obrigação legal de registrar, investigar e responder a denúncias de bullying conforme a Lei 13.185/2015.</p>
+    <p><strong>Medida proposta:</strong> Protocolo formal de atendimento a vítimas, comunicação à família, acionamento do Conselho Tutelar.</p>
+  </div>
+
+  <div class="card blue">
+    <p class="card-label">Veredicto — Imputação 3</p>
+    <h3>Alunos agressores: Bullying e cyberbullying</h3>
+    <p><strong>Decisão:</strong> Responsabilidade reconhecida com atenuante de idade.</p>
+    <p>A publicação da foto com legenda ofensiva caracteriza cyberbullying. O arrependimento verbal não apaga o dano causado. Os alunos precisam compreender o impacto real de suas ações.</p>
+    <p><strong>Medida proposta:</strong> Mediação com pedido de desculpas formal, participação em atividade sobre empatia e desigualdade.</p>
+  </div>
+
+  <div class="card">
+    <p class="card-label">Veredicto — Imputação 4</p>
+    <h3>Sistema Público: Responsabilidade estrutural</h3>
+    <p><strong>Decisão:</strong> Corresponsabilidade reconhecida.</p>
+    <p>A ausência de laboratório funcional, de psicólogo escolar e de política de inclusão digital representa falha sistêmica do Estado em garantir os direitos previstos na CF/88 e no ECA.</p>
+    <p><strong>Medida proposta (para debate público):</strong> Pressão institucional por recursos, participação em conselhos escolares, denúncia ao Ministério Público quando os direitos forem sistematicamente violados.</p>
+  </div>
+
+  <hr class="ornament">
+
+  <div class="card green">
+    <p class="card-label">Encerramento</p>
+    <h3>O que Miguel precisa agora?</h3>
+    <p>Independentemente do resultado do júri, o caso de Miguel exige respostas concretas e imediatas: acompanhamento psicológico, revisão das avaliações, garantia de acesso ao laboratório de informática, e — acima de tudo — que a escola se torne um lugar onde ele sinta que pertence.</p>
+    <p>O sonho de engenheiro de Miguel não deve ser enterrado por falta de wi-fi.</p>
+  </div>
+
+  <div class="quote-block">
+    "A escola que não acolhe o diferente não é escola — é reprodução da desigualdade com lousa e giz."
+    <cite>— Promotoria, argumento de encerramento</cite>
+  </div>
+</div>
+</section>
+
+<footer>
+  <p>JÚRI SIMULADO — MATERIAL EDUCACIONAL · USO LIVRE PARA FINS PEDAGÓGICOS</p>
+  <p style="margin-top:8px; opacity:0.5;">Personagens e situações são ficcionais para fins didáticos</p>
+</footer>
+
+<script>
+  function show(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function toggleWitness(id) {
+    const card = document.getElementById(id);
+    const body = card.querySelector('.witness-body');
+    card.classList.toggle('open');
+    body.classList.toggle('open');
+  }
+</script>
+</body>
+</html>
